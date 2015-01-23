@@ -1,0 +1,19 @@
+{
+  "name": "instagram-slack-poll",
+  "description": "",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "foreman run worker"
+  },
+  "engines": {
+    "node": "0.10.x"
+  },
+  "dependencies": {
+    "es6-promise": "^2.0.1",
+    "es6-promisify": "^1.1.1",
+    "instagram-node": "^0.5.5",
+    "node-slack": "0.0.5"
+  },
+  "devDependencies": {}
+}
