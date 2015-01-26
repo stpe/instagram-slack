@@ -54,8 +54,17 @@ Promise.all([
     memjsGet(MEMJS_INSTAGRAM_DATA)
 ])
 .then(function(data) {
-    var user = data[0];
+    // get user info of most recent follower
     var follower = data[1][0];
+    return igUser(follower.id)
+        .then(function(followerData) {
+            data.push(followerData);
+            return data;
+        });
+})
+.then(function(data) {
+    var user = data[0];
+    var follower = data[3];
     var cached = data[2] || {
         last_counts_followed_by: 0,
         last_follower_username: ""
@@ -69,7 +78,19 @@ Promise.all([
             "title": follower.full_name,
             "title_link": "http://instagram.com/" + follower.username,
             "text": follower.bio + "\n" + follower.website,
-            "color": "#7CD197"
+            "color": "#7CD197",
+            "fields": [
+                {
+                    "title": "Follows",
+                    "value": follower.counts.follows,
+                    "short": true
+                },
+                {
+                    "title": "Followed by",
+                    "value": follower.counts.followed_by,
+                    "short": true
+                }
+            ]
         }];
     } else if (user.counts.followed_by < cached.last_counts_followed_by) {
         // lost a follower
