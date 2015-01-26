@@ -1,6 +1,6 @@
-var Promise = require('es6-promise').Promise;
-var ig = require('instagram-node').instagram();
-var Slack = require('node-slack');
+var Promise = require("es6-promise").Promise;
+var ig = require("instagram-node").instagram();
+var Slack = require("node-slack");
 var promisify = require("es6-promisify");
 
 // instagram
@@ -12,7 +12,7 @@ ig.use({ client_id: process.env.INSTAGRAM_CLIENT_ID,
 var slack = new Slack(process.env.SLACK_DOMAIN, process.env.SLACK_TOKEN);
 
 // memjs
-var memjs = require('memjs');
+var memjs = require("memjs");
 var memjsClient = memjs.Client.create(process.env.MEMCACHEDCLOUD_SERVERS, {
   username: process.env.MEMCACHEDCLOUD_USERNAME,
   password: process.env.MEMCACHEDCLOUD_PASSWORD
@@ -43,7 +43,7 @@ var memjsGet = function(key) {
 var MEMJS_INSTAGRAM_DATA = "instagramdata";
 
 var slackMsg = {
-    channel: '#' + process.env.SLACK_CHANNEL,
+    channel: "#" + process.env.SLACK_CHANNEL,
     icon_url: process.env.SLACK_ICON_URL,
     username: process.env.SLACK_USERNAME
 };
@@ -63,7 +63,7 @@ Promise.all([
 
     if (user.counts.followed_by > cached.last_counts_followed_by) {
         // got a follower
-        slackMsg.text = 'We got a new follower! Total followers now *' + user.counts.followed_by + '*! :heart_eyes: :boom: :fist:';
+        slackMsg.text = "We got a new follower! Total followers now *" + user.counts.followed_by + "*! :heart_eyes: :boom: :fist:";
         slackMsg.attachments = [{
             "fallback": "We got a new follower! Total followers now " + user.counts.followed_by + ". The new one: " + follower.full_name + " " + follower.bio,
             "title": follower.full_name,
@@ -73,7 +73,7 @@ Promise.all([
         }];
     } else if (user.counts.followed_by < cached.last_counts_followed_by) {
         // lost a follower
-        slackMsg.text = 'We lost a follower :frowning: Now a total of *' + user.counts.followed_by + '*.';
+        slackMsg.text = "We lost a follower :frowning: Now a total of *" + user.counts.followed_by + "*.";
     }
 
     // send msg to Slack
