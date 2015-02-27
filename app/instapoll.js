@@ -56,9 +56,14 @@ Promise.all([
 .then(function(data) {
     // get user info of most recent follower
     var follower = data[1][0];
+
     return igUser(follower.id)
         .then(function(followerData) {
             data.push(followerData);
+            return data;
+        }, function() {
+            // if fail (most likely due to private account), stick to original profile
+            data.push(follower);
             return data;
         });
 })
@@ -73,13 +78,18 @@ Promise.all([
     if (user.counts.followed_by > cached.last_counts_followed_by) {
         // got a follower
         slackMsg.text = "We got a new follower! Total followers now *" + user.counts.followed_by + "*! :heart_eyes: :boom: :fist:";
-        slackMsg.attachments = [{
+
+        var attachment = {
             "fallback": "We got a new follower! Total followers now " + user.counts.followed_by + ". The new one: " + follower.full_name + " " + follower.bio,
             "title": follower.full_name,
             "title_link": "http://instagram.com/" + follower.username,
             "text": follower.bio + "\n" + follower.website,
-            "color": "#7CD197",
-            "fields": [
+            "color": "#7CD197"
+        };
+
+        if (follower.counts) {
+            // user is public
+            attachment.fields = [
                 {
                     "title": "Follows",
                     "value": follower.counts.follows,
@@ -90,8 +100,13 @@ Promise.all([
                     "value": follower.counts.followed_by,
                     "short": true
                 }
-            ]
-        }];
+            ];
+        } else {
+            // private account
+            attachment.title += " :lock:";
+        }
+
+        slackMsg.attachments = [attachment];
     } else if (user.counts.followed_by < cached.last_counts_followed_by) {
         // lost a follower
         slackMsg.text = "We lost a follower :frowning: Now a total of *" + user.counts.followed_by + "*.";
