@@ -83,9 +83,19 @@ Promise.all([
             "fallback": "We got a new follower! Total followers now " + user.counts.followed_by + ". The new one: " + follower.full_name + " " + follower.bio,
             "title": follower.full_name,
             "title_link": "http://instagram.com/" + follower.username,
-            "text": follower.bio + "\n" + follower.website,
             "color": "#7CD197"
         };
+
+        var text = [];
+        if (follower.bio) {
+            text.push(follower.bio);
+        }
+        if (follower.website) {
+            text.push(follower.website);
+        }
+        if (text.length > 0) {
+            attachment.text = text.join("\n");
+        }
 
         if (follower.counts) {
             // user is public
