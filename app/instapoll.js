@@ -75,13 +75,15 @@ Promise.all([
         last_follower_username: ""
     };
 
+    var followerName = follower.full_name ? follower.full_name : follower.username;
+
     if (user.counts.followed_by > cached.last_counts_followed_by) {
         // got a follower
         slackMsg.text = "We got a new follower! Total followers now *" + user.counts.followed_by + "*! :heart_eyes: :boom: :fist:";
 
         var attachment = {
             "fallback": "We got a new follower! Total followers now " + user.counts.followed_by + ". The new one: " + follower.full_name + " " + follower.bio,
-            "title": follower.full_name,
+            "title": followerName,
             "title_link": "http://instagram.com/" + follower.username,
             "color": "#7CD197"
         };
