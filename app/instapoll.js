@@ -127,7 +127,9 @@ Promise.all([
 
     // send msg to Slack
     if (user.counts.followed_by != cached.last_counts_followed_by) {
-        slack.webhook(slackMsg);
+        slack.webhook(slackMsg, function(err, response) {
+            console.log(response);
+        });
 
         // update cache with recent values
         memjsClient.set(MEMJS_INSTAGRAM_DATA, JSON.stringify({
