@@ -1,7 +1,7 @@
 var Promise = require("es6-promise").Promise;
-var ig = require("instagram-node").instagram();
-var Slack = require("node-slack");
 var promisify = require("es6-promisify");
+var ig = require("instagram-node").instagram();
+var Slack = require("slack-node");
 
 // instagram
 ig.use({ access_token: process.env.INSTAGRAM_ACCESS_TOKEN });
@@ -9,7 +9,8 @@ ig.use({ client_id: process.env.INSTAGRAM_CLIENT_ID,
          client_secret: process.env.INSTAGRAM_CLIENT_SECRET });
 
 // slack
-var slack = new Slack(process.env.SLACK_DOMAIN, process.env.SLACK_TOKEN);
+var slack = new Slack();
+slack.setWebhook(process.env.SLACK_WEBHOOK);
 
 // memjs
 var memjs = require("memjs");
@@ -126,7 +127,7 @@ Promise.all([
 
     // send msg to Slack
     if (user.counts.followed_by != cached.last_counts_followed_by) {
-        slack.send(slackMsg);
+        slack.webhook(slackMsg);
 
         // update cache with recent values
         memjsClient.set(MEMJS_INSTAGRAM_DATA, JSON.stringify({
