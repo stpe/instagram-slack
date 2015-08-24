@@ -45,7 +45,7 @@ var MEMJS_INSTAGRAM_DATA = "instagramdata";
 
 var slackMsg = {
     channel: "#" + process.env.SLACK_CHANNEL,
-    icon_url: process.env.SLACK_ICON_URL,
+    icon_emoji: process.env.SLACK_EMOJI,
     username: process.env.SLACK_USERNAME
 };
 
