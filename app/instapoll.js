@@ -41,6 +41,10 @@ var memjsGet = function(key) {
     });
 };
 
+var memjsSet = function(key, data) {
+    memjsClient.set(key, JSON.stringify(data));
+};
+
 var MEMJS_INSTAGRAM_DATA = "instagramdata";
 
 var slackMsg = {
@@ -69,6 +73,7 @@ Promise.all([
         });
 })
 .then(function(data) {
+
     var user = data[0];
     var follower = data[3];
     var cached = data[2] || {
@@ -132,10 +137,10 @@ Promise.all([
         });
 
         // update cache with recent values
-        memjsClient.set(MEMJS_INSTAGRAM_DATA, JSON.stringify({
+        memjsSet(MEMJS_INSTAGRAM_DATA, {
             last_counts_followed_by: user.counts.followed_by,
             last_follower_username: follower.username
-        }));
+        });
     }
 
     console.log("Current follower count: " + user.counts.followed_by);
