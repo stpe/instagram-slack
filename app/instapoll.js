@@ -2,6 +2,7 @@ var Promise = require("es6-promise").Promise;
 var promisify = require("es6-promisify");
 var ig = require("instagram-node").instagram();
 var Slack = require("slack-node");
+var mem = require("./lib/mem");
 
 // instagram
 ig.use({ access_token: process.env.INSTAGRAM_ACCESS_TOKEN });
@@ -12,40 +13,10 @@ ig.use({ client_id: process.env.INSTAGRAM_CLIENT_ID,
 var slack = new Slack();
 slack.setWebhook(process.env.SLACK_WEBHOOK);
 
-// memjs
-var memjs = require("memjs");
-var memjsClient = memjs.Client.create(process.env.MEMCACHEDCLOUD_SERVERS, {
-  username: process.env.MEMCACHEDCLOUD_USERNAME,
-  password: process.env.MEMCACHEDCLOUD_PASSWORD
-});
-
 // promisify stuff for convenience
 var igUser = promisify(ig.user);
 var igUserFollowers = promisify(ig.user_followers);
-
-var memjsGet = function(key) {
-    return new Promise(function(resolve, reject) {
-        memjsClient.get(key,
-            function(err, value, key) {
-                if (err) {
-                    return reject(Error(err));
-                }
-
-                if (value) {
-                    resolve(JSON.parse(value.toString()));
-                } else {
-                    resolve("");
-                }
-            }
-        );
-    });
-};
-
-var memjsSet = function(key, data) {
-    memjsClient.set(key, JSON.stringify(data));
-};
-
-var MEMJS_INSTAGRAM_DATA = "instagramdata";
+var igUserMediaRecent = promisify(ig.user_media_recent);
 
 var slackMsg = {
     channel: "#" + process.env.SLACK_CHANNEL,
@@ -56,7 +27,7 @@ var slackMsg = {
 Promise.all([
     igUser(process.env.INSTAGRAM_USER_ID),
     igUserFollowers(process.env.INSTAGRAM_USER_ID),
-    memjsGet(MEMJS_INSTAGRAM_DATA)
+    mem.get(mem.MEMJS_INSTAGRAM_DATA)
 ])
 .then(function(data) {
     // get user info of most recent follower
@@ -137,7 +108,7 @@ Promise.all([
         });
 
         // update cache with recent values
-        memjsSet(MEMJS_INSTAGRAM_DATA, {
+        memjsSet(mem.MEMJS_INSTAGRAM_DATA, {
             last_counts_followed_by: user.counts.followed_by,
             last_follower_username: follower.username
         });
@@ -147,4 +118,6 @@ Promise.all([
 })
 .catch(function(err) {
     console.log(err);
+    console.log(err.stack);
+    throw err;
 });
