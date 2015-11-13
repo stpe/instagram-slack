@@ -19,7 +19,6 @@ mem.set = function(key, data) {
         if (err) {
             throw Error(err);
         }
-
     });
 };
 

@@ -1,28 +1,18 @@
 var Promise = require("es6-promise").Promise;
 var promisify = require("es6-promisify");
 var ig = require("instagram-node").instagram();
-var Slack = require("slack-node");
 var mem = require("./lib/mem");
+var slack = require("./lib/slack");
 
 // instagram
 ig.use({ access_token: process.env.INSTAGRAM_ACCESS_TOKEN });
 ig.use({ client_id: process.env.INSTAGRAM_CLIENT_ID,
          client_secret: process.env.INSTAGRAM_CLIENT_SECRET });
 
-// slack
-var slack = new Slack();
-slack.setWebhook(process.env.SLACK_WEBHOOK);
-
 // promisify stuff for convenience
 var igUser = promisify(ig.user);
 var igUserFollowers = promisify(ig.user_followers);
 var igUserMediaRecent = promisify(ig.user_media_recent);
-
-var slackMsg = {
-    channel: "#" + process.env.SLACK_CHANNEL,
-    icon_emoji: process.env.SLACK_EMOJI,
-    username: process.env.SLACK_USERNAME
-};
 
 Promise.all([
     igUser(process.env.INSTAGRAM_USER_ID),
@@ -30,8 +20,17 @@ Promise.all([
     mem.get(mem.MEMJS_INSTAGRAM_DATA)
 ])
 .then(function(data) {
-    // get user info of most recent follower
-    var follower = data[1][0];
+    console.log("Data length: ", data.length);
+
+    var result = {
+        user: data[0][0],
+        follower: data[1][0],  // get user info of most recent follower
+        media: data[2][0],
+        cached: data[3] || {
+            last_counts_followed_by: 0,
+            last_follower_username: ""
+        }
+    }
 
     return igUser(follower.id)
         .then(function(followerData) {
@@ -103,12 +102,10 @@ Promise.all([
 
     // send msg to Slack
     if (user.counts.followed_by != cached.last_counts_followed_by) {
-        slack.webhook(slackMsg, function(err, response) {
-            // console.log(response);
-        });
+        slack.send(slackMsg)
 
         // update cache with recent values
-        memjsSet(mem.MEMJS_INSTAGRAM_DATA, {
+        mem.set(mem.MEMJS_INSTAGRAM_DATA, {
             last_counts_followed_by: user.counts.followed_by,
             last_follower_username: follower.username
         });
