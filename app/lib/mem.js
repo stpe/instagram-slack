@@ -1,5 +1,6 @@
 // memjs
 var memjs = require("memjs");
+var Promise = require("es6-promise").Promise;
 
 var memjsClient = memjs.Client.create(
     process.env.MEMCACHEDCLOUD_SERVERS,
@@ -10,15 +11,19 @@ var memjsClient = memjs.Client.create(
 
 var mem = {
     MEMJS_INSTAGRAM_DATA: "instagramdata",
-    MEMJS_INSTAGRAM_STAT_UPDATES_DATA: "instagramstatsupdatedata"
+    MEMJS_INSTAGRAM_STAT_UPDATES: "igstatsupdate"
 };
 
 mem.set = function(key, data) {
-    memjsClient.set(key, JSON.stringify(data));
+    memjsClient.set(key, JSON.stringify(data), function(err, val) {
+        if (err) {
+            throw Error(err);
+        }
+
+    });
 };
 
 mem.get = function(key) {
-    console.log("mem.get", key);
     return new Promise(function(resolve, reject) {
         memjsClient.get(key,
             function(err, value, key) {
@@ -26,7 +31,11 @@ mem.get = function(key) {
                     return reject(Error(err));
                 }
 
-                resolve(value ? JSON.parse(value.toString()) : "");
+                if (value) {
+                    resolve(JSON.parse(value.toString()));
+                } else {
+                    resolve("");
+                }
             }
         );
     });
