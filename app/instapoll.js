@@ -1,8 +1,11 @@
 var Promise = require("es6-promise").Promise;
 var promisify = require("es6-promisify");
 var ig = require("instagram-node").instagram();
+
 var mem = require("./lib/mem");
 var slack = require("./lib/slack");
+
+var mediaStats = require("./tasks/mediaStats")(mem, slack);
 
 // instagram
 ig.use({ access_token: process.env.INSTAGRAM_ACCESS_TOKEN });
@@ -17,6 +20,7 @@ var igUserMediaRecent = promisify(ig.user_media_recent);
 Promise.all([
     igUser(process.env.INSTAGRAM_USER_ID),
     igUserFollowers(process.env.INSTAGRAM_USER_ID),
+    igUserMediaRecent(process.env.INSTAGRAM_USER_ID, { count: 10 }),
     mem.get(mem.MEMJS_INSTAGRAM_DATA)
 ])
 .then(function(data) {
@@ -32,24 +36,19 @@ Promise.all([
         }
     }
 
-    return igUser(follower.id)
+    return igUser(result.follower.id)
         .then(function(followerData) {
-            data.push(followerData);
-            return data;
+            result.follower = followerData;
+            return result;
         }, function() {
-            // if fail (most likely due to private account), stick to original profile
-            data.push(follower);
-            return data;
+            return result;
         });
 })
 .then(function(data) {
-
-    var user = data[0];
-    var follower = data[3];
-    var cached = data[2] || {
-        last_counts_followed_by: 0,
-        last_follower_username: ""
-    };
+    var user = data.user;
+    var follower = data.follower;
+    var cached = data.cached;
+    var media = data.media;
 
     var followerName = follower.full_name ? follower.full_name : follower.username;
 
@@ -112,6 +111,8 @@ Promise.all([
     }
 
     console.log("Current follower count: " + user.counts.followed_by);
+
+    mediaStats.parseData(media);
 })
 .catch(function(err) {
     console.log(err);
