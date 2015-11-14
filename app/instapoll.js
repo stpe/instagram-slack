@@ -89,7 +89,7 @@ Promise.all([
             ];
         } else {
             // private account
-            attachment.title += " :lock:";
+            attachment.title += " (private)";
         }
 
         slackMsg.attachments = [attachment];
