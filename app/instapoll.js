@@ -52,6 +52,7 @@ Promise.all([
 
     var followerName = follower.full_name ? follower.full_name : follower.username;
 
+    var slackMsg = {};
     if (user.counts.followed_by > cached.last_counts_followed_by) {
         // got a follower
         slackMsg.text = "We got a new follower! Total followers now *" + user.counts.followed_by + "*! :heart_eyes: :boom: :fist:";
