@@ -18,6 +18,6 @@ slackMessenger.send = function(msg) {
     slack.webhook(msg, function(err, response) {
         // console.log(response);
     });
-}
+};
 
 module.exports = slackMessenger;

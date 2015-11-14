@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "foreman run worker"
+    "start": "foreman run worker",
+    "test": "jshint . && jscs ."
   },
   "engines": {
     "node": "5.0.x"

@@ -24,8 +24,6 @@ Promise.all([
     mem.get(mem.MEMJS_INSTAGRAM_DATA)
 ])
 .then(function(data) {
-    console.log("Data length: ", data.length);
-
     var result = {
         user: data[0][0],
         follower: data[1][0],  // get user info of most recent follower
@@ -34,7 +32,7 @@ Promise.all([
             last_counts_followed_by: 0,
             last_follower_username: ""
         }
-    }
+    };
 
     return igUser(result.follower.id)
         .then(function(followerData) {
@@ -102,7 +100,7 @@ Promise.all([
 
     // send msg to Slack
     if (user.counts.followed_by != cached.last_counts_followed_by) {
-        slack.send(slackMsg)
+        slack.send(slackMsg);
 
         // update cache with recent values
         mem.set(mem.MEMJS_INSTAGRAM_DATA, {
