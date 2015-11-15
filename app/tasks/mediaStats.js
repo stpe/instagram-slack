@@ -33,9 +33,14 @@ mediaStats.saveStats = function(stats) {
 mediaStats.sendSlackMsg = function(post) {
     var since = Math.round(new Date().getTime() / 1000) - post.created_time;
 
+    var title = _.capitalize(post.type) + " posted " + moment.duration(-since, "seconds").humanize(true);
+    if (since < 60 * 10) {
+        title = (post.type == "image" ? "An " : "A ") + post.type + " was just posted!";
+    }
+
     mediaStats.slack.send({
         attachments: [{
-            author_name: "Statistics for Instagram " + post.type + " posted " + moment.duration(-since, "seconds").humanize(true),
+            author_name: title,
             author_link: "instagram://media?id=" + post.id,
             author_icon: "http://test.rebelandbird.com/slackbird/icon-instagram.png",
 
