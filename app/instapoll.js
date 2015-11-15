@@ -26,7 +26,7 @@ Promise.all([
 .then(function(data) {
     var result = {
         user: data[0][0],
-        follower: data[1][0],  // get user info of most recent follower
+        followers: data[1][0],  // get user info of most recent follower
         media: data[2][0],
         cached: data[3] || {
             last_counts_followed_by: 0,
@@ -34,9 +34,9 @@ Promise.all([
         }
     };
 
-    return igUser(result.follower.id)
-        .then(function(followerData) {
-            result.follower = followerData;
+    return igUser(result.followers[0].id)
+        .then(function(profile) {
+            result.latest_follower = profile[0];
             return result;
         }, function() {
             return result;
@@ -44,11 +44,12 @@ Promise.all([
 })
 .then(function(data) {
     var user = data.user;
-    var follower = data.follower;
+    var followers = data.followers;
     var cached = data.cached;
     var media = data.media;
+    var follower = data.latest_follower;
 
-    var followerName = follower.full_name ? follower.full_name : follower.username;
+    var followerName = follower.full_name || follower.username;
 
     var slackMsg = {};
     if (user.counts.followed_by > cached.last_counts_followed_by) {
