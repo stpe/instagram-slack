@@ -20,7 +20,7 @@ var igUserMediaRecent = promisify(ig.user_media_recent);
 Promise.all([
     igUser(process.env.INSTAGRAM_USER_ID),
     igUserFollowers(process.env.INSTAGRAM_USER_ID),
-    igUserMediaRecent(process.env.INSTAGRAM_USER_ID, { count: 10 }),
+    igUserMediaRecent(process.env.INSTAGRAM_USER_ID, { count: 20 }),
     mem.get(mem.MEMJS_INSTAGRAM_DATA)
 ])
 .then(function(data) {
