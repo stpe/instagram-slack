@@ -96,7 +96,7 @@ Promise.all([
         slackMsg.attachments = [attachment];
     } else if (user.counts.followed_by < cached.last_counts_followed_by) {
         // lost a follower
-        slackMsg.text = "We lost a follower :frowning: Now a total of *" + user.counts.followed_by + "*.";
+        slackMsg.text = "We lost a follower. Now a total of " + user.counts.followed_by + ".";
     }
 
     // send msg to Slack
